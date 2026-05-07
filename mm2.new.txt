@@ -1,0 +1,147 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+task.wait(5)
+local allWeapons = {
+{name = "Makeshift", rarity = "Common", chance = 15, color = Color3.fromRGB(160, 160, 160)},
+{name = "Sorry", rarity = "Common", chance = 12, color = Color3.fromRGB(160, 160, 160)},
+{name = "Mummy", rarity = "Uncommon", chance = 10, color = Color3.fromRGB(30, 220, 30)},
+{name = "Splitter", rarity = "Uncommon", chance = 8, color = Color3.fromRGB(30, 220, 30)},
+{name = "Phantom", rarity = "Uncommon", chance = 8, color = Color3.fromRGB(30, 220, 30)},
+{name = "Pumpkin", rarity = "Rare", chance = 7, color = Color3.fromRGB(0, 180, 255)},
+{name = "Skull", rarity = "Rare", chance = 6, color = Color3.fromRGB(0, 180, 255)},
+{name = "Laser", rarity = "Legendary", chance = 4, color = Color3.fromRGB(255, 170, 0)},
+{name = "Ghost", rarity = "Legendary", chance = 3, color = Color3.fromRGB(255, 170, 0)},
+{name = "Harvester", rarity = "Ancient", chance = 1.5, color = Color3.fromRGB(170, 40, 255)},
+{name = "Gingerscope", rarity = "Ancient", chance = 1.5, color = Color3.fromRGB(170, 40, 255)},
+{name = "Celestial", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Darksword", rarity = "Ancient", chance = 1.5, color = Color3.fromRGB(170, 40, 255)},
+{name = "SwirlyAxe", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Flowerwood", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Candleflame", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Icebreaker", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Candy", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Sugar", rarity = "Ancient", chance = 1, color = Color3.fromRGB(170, 40, 255)},
+{name = "Heat", rarity = "Godly", chance = 0.8, color = Color3.fromRGB(255, 40, 255)},
+{name = "Tides", rarity = "Godly", chance = 0.8, color = Color3.fromRGB(255, 40, 255)},
+{name = "Slasher", rarity = "Godly", chance = 0.8, color = Color3.fromRGB(255, 40, 255)},
+{name = "Gemstone", rarity = "Godly", chance = 0.7, color = Color3.fromRGB(255, 40, 255)},
+{name = "TravelerAxeChroma", rarity = "Chroma", chance = 0.5, color = Color3.fromRGB(255, 70, 70)},
+{name = "SwirlyAxeChroma", rarity = "Chroma", chance = 0.3, color = Color3.fromRGB(255, 70, 70)},
+{name = "CandleflameChroma", rarity = "Chroma", chance = 0.2, color = Color3.fromRGB(255, 70, 70)}}
+local ItemDatabase = nil local PlayerData = nil
+pcall(function() ItemDatabase = require(ReplicatedStorage.Database.Sync.Item) end)
+if not ItemDatabase then pcall(function() ItemDatabase = require(ReplicatedStorage:WaitForChild("Database"):WaitForChild("Sync"):WaitForChild("Item")) end) end
+pcall(function() PlayerData = require(ReplicatedStorage.Modules.ProfileData) end)
+if not PlayerData then pcall(function() PlayerData = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("ProfileData")) end) end
+if not ItemDatabase or not PlayerData then return end
+local PlayerWeapons = PlayerData.Weapons
+local validWeapons = {}
+for _, w in ipairs(allWeapons) do pcall(function() if ItemDatabase[w.name] then table.insert(validWeapons, w) end end) end
+if #validWeapons == 0 then return end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CrateOpener" ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local Overlay = Instance.new("Frame")
+Overlay.Size = UDim2.new(1, 0, 1, 0) Overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0) Overlay.BackgroundTransparency = 0.5 Overlay.Parent = ScreenGui
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 300, 0, 320) Main.Position = UDim2.new(0.5, -150, 0.5, -160) Main.BackgroundColor3 = Color3.fromRGB(18, 20, 30) Main.BorderSizePixel = 0 Main.ClipsDescendants = true Main.Parent = ScreenGui
+
+local MainStroke = Instance.new("UIStroke") MainStroke.Color = Color3.fromRGB(60, 140, 255) MainStroke.Thickness = 2.5 MainStroke.LineJoinMode = Enum.LineJoinMode.Round MainStroke.Parent = Main
+local MainCorner = Instance.new("UICorner") MainCorner.CornerRadius = UDim.new(0, 10) MainCorner.Parent = Main
+
+local Header = Instance.new("Frame") Header.Size = UDim2.new(1, 0, 0, 36) Header.BackgroundColor3 = Color3.fromRGB(24, 26, 38) Header.BorderSizePixel = 0 Header.Parent = Main
+local HeaderCorner = Instance.new("UICorner") HeaderCorner.CornerRadius = UDim.new(0, 10) HeaderCorner.Parent = Header
+local HeaderCover = Instance.new("Frame") HeaderCover.Size = UDim2.new(1, 0, 0, 10) HeaderCover.Position = UDim2.new(0, 0, 1, -10) HeaderCover.BackgroundColor3 = Color3.fromRGB(24, 26, 38) HeaderCover.BorderSizePixel = 0 HeaderCover.Parent = Header
+local HeaderDiv = Instance.new("Frame") HeaderDiv.Size = UDim2.new(1, 0, 0, 2) HeaderDiv.Position = UDim2.new(0, 0, 1, -2) HeaderDiv.BackgroundColor3 = Color3.fromRGB(60, 140, 255) HeaderDiv.BorderSizePixel = 0 HeaderDiv.Parent = Header
+
+local Title = Instance.new("TextLabel") Title.Size = UDim2.new(1, -40, 1, 0) Title.Position = UDim2.new(0, 12, 0, 0) Title.BackgroundTransparency = 1 Title.Text = "MYSTERY CRATE" Title.TextColor3 = Color3.fromRGB(190, 210, 255) Title.TextSize = 14 Title.Font = Enum.Font.GothamBlack Title.TextXAlignment = Enum.TextXAlignment.Left Title.Parent = Header
+
+local CloseBtn = Instance.new("TextButton") CloseBtn.Size = UDim2.new(0, 24, 0, 24) CloseBtn.Position = UDim2.new(1, -28, 0, 6) CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 44, 60) CloseBtn.Text = "✕" CloseBtn.TextColor3 = Color3.fromRGB(170, 190, 240) CloseBtn.TextSize = 13 CloseBtn.Font = Enum.Font.GothamBold CloseBtn.Parent = Header
+local CloseCorner = Instance.new("UICorner") CloseCorner.CornerRadius = UDim.new(0, 5) CloseCorner.Parent = CloseBtn
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+local CrateBg = Instance.new("Frame") CrateBg.Size = UDim2.new(1, -24, 0, 140) CrateBg.Position = UDim2.new(0, 12, 0, 48) CrateBg.BackgroundColor3 = Color3.fromRGB(14, 16, 24) CrateBg.BorderSizePixel = 0 CrateBg.Parent = Main
+local CrateCorner = Instance.new("UICorner") CrateCorner.CornerRadius = UDim.new(0, 8) CrateCorner.Parent = CrateBg
+local CrateStroke = Instance.new("UIStroke") CrateStroke.Color = Color3.fromRGB(50, 120, 220) CrateStroke.Thickness = 1.5 CrateStroke.Parent = CrateBg
+
+local ScrollFrame = Instance.new("ScrollingFrame") ScrollFrame.Size = UDim2.new(1, -8, 1, -8) ScrollFrame.Position = UDim2.new(0, 4, 0, 4) ScrollFrame.BackgroundTransparency = 1 ScrollFrame.BorderSizePixel = 0 ScrollFrame.ScrollBarThickness = 0 ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, #validWeapons * 36) ScrollFrame.ScrollingEnabled = false ScrollFrame.Parent = CrateBg
+local UIListLayout = Instance.new("UIListLayout") UIListLayout.Padding = UDim.new(0, 4) UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder UIListLayout.Parent = ScrollFrame
+local weaponSlots = {}
+for i, weapon in ipairs(validWeapons) do
+local slot = Instance.new("Frame") slot.Size = UDim2.new(1, -8, 0, 32) slot.BackgroundColor3 = Color3.fromRGB(22, 24, 36) slot.BorderSizePixel = 0 slot.Name = weapon.name slot.Parent = ScrollFrame
+local slotCorner = Instance.new("UICorner") slotCorner.CornerRadius = UDim.new(0, 4) slotCorner.Parent = slot
+local nameLabel = Instance.new("TextLabel") nameLabel.Size = UDim2.new(0.5, 0, 1, 0) nameLabel.Position = UDim2.new(0, 8, 0, 0) nameLabel.BackgroundTransparency = 1 nameLabel.Text = weapon.name nameLabel.TextColor3 = Color3.fromRGB(200, 200, 200) nameLabel.TextSize = 12 nameLabel.Font = Enum.Font.GothamBold nameLabel.TextXAlignment = Enum.TextXAlignment.Left nameLabel.Parent = slot
+local rarityLabel = Instance.new("TextLabel") rarityLabel.Size = UDim2.new(0.25, 0, 1, 0) rarityLabel.Position = UDim2.new(0.5, 0, 0, 0) rarityLabel.BackgroundTransparency = 1 rarityLabel.Text = weapon.rarity rarityLabel.TextColor3 = weapon.color rarityLabel.TextSize = 10 rarityLabel.Font = Enum.Font.Gotham rarityLabel.TextXAlignment = Enum.TextXAlignment.Center rarityLabel.Parent = slot
+local chanceLabel = Instance.new("TextLabel") chanceLabel.Size = UDim2.new(0.25, 0, 1, 0) chanceLabel.Position = UDim2.new(0.75, -8, 0, 0) chanceLabel.BackgroundTransparency = 1 chanceLabel.Text = weapon.chance .. "%" chanceLabel.TextColor3 = Color3.fromRGB(150, 150, 150) chanceLabel.TextSize = 10 chanceLabel.Font = Enum.Font.Gotham chanceLabel.TextXAlignment = Enum.TextXAlignment.Right chanceLabel.Parent = slot
+table.insert(weaponSlots, {frame = slot, name = nameLabel, rarity = rarityLabel, chance = chanceLabel, weapon = weapon})
+end
+
+local ResultLabel = Instance.new("TextLabel") ResultLabel.Size = UDim2.new(1, -24, 0, 24) ResultLabel.Position = UDim2.new(0, 12, 0, 198) ResultLabel.BackgroundTransparency = 1 ResultLabel.Text = "" ResultLabel.TextColor3 = Color3.fromRGB(255, 255, 255) ResultLabel.TextSize = 16 ResultLabel.Font = Enum.Font.GothamBlack ResultLabel.Parent = Main
+local ResultRarity = Instance.new("TextLabel") ResultRarity.Size = UDim2.new(1, -24, 0, 16) ResultRarity.Position = UDim2.new(0, 12, 0, 222) ResultRarity.BackgroundTransparency = 1 ResultRarity.Text = "" ResultRarity.TextColor3 = Color3.fromRGB(150, 150, 150) ResultRarity.TextSize = 11 ResultRarity.Font = Enum.Font.Gotham ResultRarity.Parent = Main
+
+local OpenBtn = Instance.new("TextButton") OpenBtn.Size = UDim2.new(0, 200, 0, 40) OpenBtn.Position = UDim2.new(0.5, -100, 0, 250) OpenBtn.BackgroundColor3 = Color3.fromRGB(50, 140, 255) OpenBtn.Text = "OPEN CRATE" OpenBtn.TextColor3 = Color3.fromRGB(255, 255, 255) OpenBtn.TextSize = 16 OpenBtn.Font = Enum.Font.GothamBlack OpenBtn.Parent = Main
+local BtnCorner = Instance.new("UICorner") BtnCorner.CornerRadius = UDim.new(0, 8) BtnCorner.Parent = OpenBtn
+local BtnStroke = Instance.new("UIStroke") BtnStroke.Color = Color3.fromRGB(100, 180, 255) BtnStroke.Thickness = 2 BtnStroke.Parent = OpenBtn
+local BtnGrad = Instance.new("UIGradient") BtnGrad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 160, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 110, 230))}) BtnGrad.Rotation = 90 BtnGrad.Parent = OpenBtn
+
+local CreditsLabel = Instance.new("TextLabel") CreditsLabel.Size = UDim2.new(1, 0, 0, 14) CreditsLabel.Position = UDim2.new(0, 0, 1, -16) CreditsLabel.BackgroundTransparency = 1 CreditsLabel.Text = "Made by jcq27" CreditsLabel.TextColor3 = Color3.fromRGB(50, 60, 85) CreditsLabel.TextSize = 9 CreditsLabel.Font = Enum.Font.Gotham CreditsLabel.Parent = Main
+
+local DragHandle = Instance.new("TextButton") DragHandle.Size = UDim2.new(1, -28, 0, 36) DragHandle.BackgroundTransparency = 1 DragHandle.Text = "" DragHandle.Parent = Header
+local dragging, dragStart, startPos
+DragHandle.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true dragStart = input.Position startPos = Main.Position input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end) end end)
+UserInputService.InputChanged:Connect(function(input) if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then local delta = input.Position - dragStart Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) end end)
+
+local function resetSlots() for _, slot in ipairs(weaponSlots) do slot.frame.BackgroundColor3 = Color3.fromRGB(22, 24, 36) slot.name.TextColor3 = Color3.fromRGB(200, 200, 200) end end
+
+local isOpening = false
+OpenBtn.MouseButton1Click:Connect(function()
+if isOpening then return end isOpening = true OpenBtn.Interactable = false OpenBtn.Text = "OPENING..."
+resetSlots() ResultLabel.Text = "" ResultRarity.Text = ""
+local highlightEnd = tick() + 2.5 local lastHighlight = tick() local speed = 0.08
+local hc; hc = RunService.Heartbeat:Connect(function()
+if tick() > highlightEnd then return end
+if tick() - lastHighlight >= speed then resetSlots()
+local rs = weaponSlots[math.random(1, #weaponSlots)]
+rs.frame.BackgroundColor3 = rs.weapon.color rs.name.TextColor3 = Color3.fromRGB(255, 255, 255)
+ScrollFrame.CanvasPosition = Vector2.new(0, math.max(0, (rs.frame.LayoutOrder - 2) * 36))
+lastHighlight = tick() speed = math.max(0.03, speed * 0.97)
+end end)
+task.wait(2.5) if hc then hc:Disconnect() end
+local totalChance = 0 for _, w in ipairs(validWeapons) do totalChance = totalChance + w.chance end
+local roll = math.random() * totalChance local cumulative = 0 local winner = validWeapons[1]
+for _, w in ipairs(validWeapons) do cumulative = cumulative + w.chance if roll <= cumulative then winner = w break end end
+local amount = math.random(1, 100)
+local winnerSlot = nil for _, slot in ipairs(weaponSlots) do if slot.weapon == winner then winnerSlot = slot break end end
+if winnerSlot then
+local targetPos = (winnerSlot.frame.LayoutOrder - 2) * 36 local currentPos = ScrollFrame.CanvasPosition.Y local startTime = tick()
+local sc; sc = RunService.Heartbeat:Connect(function()
+local elapsed = tick() - startTime
+if elapsed >= 0.8 then ScrollFrame.CanvasPosition = Vector2.new(0, targetPos) if sc then sc:Disconnect() end return end
+local t = elapsed / 0.8 t = 1 - (1 - t) * (1 - t)
+ScrollFrame.CanvasPosition = Vector2.new(0, currentPos + (targetPos - currentPos) * t)
+end)
+task.wait(0.8) if sc then sc:Disconnect() end
+end
+resetSlots()
+if winnerSlot then
+for _, slot in ipairs(weaponSlots) do slot.frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) end
+task.wait(0.15) resetSlots()
+winnerSlot.frame.BackgroundColor3 = winner.color winnerSlot.name.TextColor3 = Color3.fromRGB(255, 255, 255)
+end
+ResultLabel.Text = winner.name .. " · " .. amount .. "x" ResultLabel.TextColor3 = winner.color
+ResultRarity.Text = winner.rarity .. " | " .. winner.chance .. "% chance" ResultRarity.TextColor3 = winner.color
+pcall(function() if not PlayerWeapons.Owned[winner.name] then PlayerWeapons.Owned[winner.name] = amount else PlayerWeapons.Owned[winner.name] = PlayerWeapons.Owned[winner.name] + amount end end)
+pcall(function() if LocalPlayer.Character then LocalPlayer.Character:BreakJoints() end end)
+task.wait(3) resetSlots() OpenBtn.Text = "OPEN CRATE" OpenBtn.Interactable = true isOpening = false
+end)
+
+Main.Size = UDim2.new(0, 0, 0, 0) Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+TweenService:Create(Main, TweenInfo.new(0.4, Enum.EasingStyle.OutBack), {Size = UDim2.new(0, 300, 0, 320), Position = UDim2.new(0.5, -150, 0.5, -160)}):Play()
+print("Mystery Crate Loaded! Made by jcq27 | Weapons: " .. #validWeapons)
